@@ -2,6 +2,9 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { EnvService } from './env/env.service';
+import { Request, Response } from 'express';
 
 function enableDocumentation(app: INestApplication) {
   const config = new DocumentBuilder()
@@ -14,13 +17,7 @@ function enableDocumentation(app: INestApplication) {
   SwaggerModule.setup('api', app, document);
 }
 
-async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-
-  app.enableCors();
-
-  enableDocumentation(app);
-
+function enableValidationPipes(app: INestApplication) {
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -28,7 +25,38 @@ async function bootstrap() {
       transform: true,
     }),
   );
+}
 
-  await app.listen(3000);
+function enableSecureApp(app: NestExpressApplication) {
+  app.getHttpAdapter().getInstance().disable('x-powered-by');
+
+  app.use((_req: Request, res: Response, next) => {
+    res.header('Server', 'Smartranking server');
+    next();
+  });
+
+  app.set('trust proxy', 1);
+}
+
+async function runServer(app: NestExpressApplication, port: number) {
+  await app.listen(port);
+}
+
+async function bootstrap() {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  const env = app.get(EnvService);
+  const PORT = env.get('PORT');
+  const NODE_ENV = env.get('NODE_ENV');
+
+  app.enableCors();
+
+  if (NODE_ENV === 'development' || NODE_ENV === 'test') {
+    enableDocumentation(app);
+  }
+
+  enableSecureApp(app);
+  enableValidationPipes(app);
+  runServer(app, PORT);
 }
 bootstrap();

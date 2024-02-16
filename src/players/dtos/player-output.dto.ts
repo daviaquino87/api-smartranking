@@ -8,6 +8,8 @@ export class PlayerOutputDTO {
   ranking: string;
   rankingPosition: number;
   playerPictureUrl: string;
+  createdAt: Date;
+  updatedAt: Date;
 
   static toHttp(player: Player): PlayerOutputDTO {
     return {
@@ -18,6 +20,8 @@ export class PlayerOutputDTO {
       ranking: player?.ranking ?? '',
       rankingPosition: player?.rankingPosition ?? 0,
       playerPictureUrl: player?.playerPictureUrl ?? '',
+      createdAt: player?.createdAt,
+      updatedAt: player?.updatedAt,
     };
   }
 }

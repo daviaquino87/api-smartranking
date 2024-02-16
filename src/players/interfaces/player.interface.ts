@@ -7,4 +7,6 @@ export class Player extends Document {
   ranking: string;
   rankingPosition: number;
   playerPictureUrl: string;
+  createdAt: Date;
+  updatedAt: Date;
 }

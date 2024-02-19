@@ -14,13 +14,13 @@ import { CategoriesModule } from './categories/categories.module';
       isGlobal: true,
     }),
     EnvModule,
-    PlayersModule,
     MongooseModule.forRootAsync({
       useFactory: async (envService: EnvService) => ({
         uri: envService.get('MONGODB_URL'),
       }),
       inject: [EnvService],
     }),
+    PlayersModule,
     CategoriesModule,
   ],
   controllers: [],

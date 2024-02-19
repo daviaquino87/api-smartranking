@@ -8,6 +8,7 @@ import { Category } from './interfaces/category.interface';
 import { Model } from 'mongoose';
 import { CreateCategoryDTO } from './dtos/create-category.dto';
 import { UpdateCategoryDTO } from './dtos/update-category.dto';
+import { PlayersService } from 'src/players/players.service';
 
 interface CreateCategoryOutput {
   category: Category;
@@ -23,17 +24,15 @@ interface GetCategoriesOutput {
 export class CategoriesService {
   constructor(
     @InjectModel('Category') private readonly categoryModel: Model<Category>,
+    private readonly playersService: PlayersService,
   ) {}
 
   async createCategory(
     createCategoryDto: CreateCategoryDTO,
   ): Promise<CreateCategoryOutput> {
-    const categoryAlreadyExists = await this.categoryModel
-      .findOne({
-        category: createCategoryDto.category,
-      })
-      .exec();
-
+    const categoryAlreadyExists = await this.categoryModel.findOne({
+      category: createCategoryDto.category,
+    });
     if (categoryAlreadyExists) {
       throw new ConflictException('Category already exists');
     }
@@ -47,11 +46,7 @@ export class CategoriesService {
   }
 
   async getCategories(): Promise<GetCategoriesOutput> {
-    const categories = await this.categoryModel
-      .find()
-      .populate('players')
-      .exec();
-
+    const categories = await this.categoryModel.find().populate('players');
     return {
       categories,
     };
@@ -60,9 +55,7 @@ export class CategoriesService {
   async getCategoryById(id: string): Promise<GetCategoryByIdOutput> {
     const category = await this.categoryModel
       .findOne({ _id: id })
-      .populate('players')
-      .exec();
-
+      .populate('players');
     if (!category) {
       throw new NotFoundException('Category not found');
     }
@@ -76,37 +69,39 @@ export class CategoriesService {
     id: string,
     updateCategoryDto: UpdateCategoryDTO,
   ): Promise<void> {
-    const category = await this.categoryModel.findOne({ _id: id }).exec();
+    const category = await this.categoryModel.findOne({ _id: id });
 
     if (!category) {
       throw new NotFoundException('Category not found');
     }
 
-    await this.categoryModel
-      .findOneAndUpdate({ _id: id }, { $set: updateCategoryDto })
-      .exec();
+    await this.categoryModel.findOneAndUpdate(
+      { _id: id },
+      { $set: updateCategoryDto },
+    );
   }
 
   async setPlayerInCategory(categoryName: string, playerId: string) {
-    const category = await this.categoryModel
-      .findOne({ category: categoryName })
-      .exec();
-
+    const category = await this.categoryModel.findOne({
+      category: categoryName,
+    });
     if (!category) {
       throw new NotFoundException('Category not found');
     }
 
-    for (const player of category.players) {
-      if (playerId === String(player._id)) {
-        throw new ConflictException('Player already in category');
-      }
+    await this.playersService.getPlayerById(playerId);
+
+    const playerAlreadyAllocated = await this.categoryModel.exists({
+      category: categoryName,
+      players: { $in: [playerId] },
+    });
+    if (playerAlreadyAllocated) {
+      throw new ConflictException('Player already in category');
     }
 
-    await this.categoryModel
-      .findOneAndUpdate(
-        { category: categoryName },
-        { $push: { players: playerId } },
-      )
-      .exec();
+    await this.categoryModel.findOneAndUpdate(
+      { category: categoryName },
+      { $push: { players: playerId } },
+    );
   }
 }

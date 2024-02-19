@@ -47,7 +47,10 @@ export class CategoriesService {
   }
 
   async getCategories(): Promise<GetCategoriesOutput> {
-    const categories = await this.categoryModel.find().exec();
+    const categories = await this.categoryModel
+      .find()
+      .populate('players')
+      .exec();
 
     return {
       categories,
@@ -55,7 +58,10 @@ export class CategoriesService {
   }
 
   async getCategoryById(id: string): Promise<GetCategoryByIdOutput> {
-    const category = await this.categoryModel.findOne({ _id: id }).exec();
+    const category = await this.categoryModel
+      .findOne({ _id: id })
+      .populate('players')
+      .exec();
 
     if (!category) {
       throw new NotFoundException('Category not found');
@@ -78,6 +84,29 @@ export class CategoriesService {
 
     await this.categoryModel
       .findOneAndUpdate({ _id: id }, { $set: updateCategoryDto })
+      .exec();
+  }
+
+  async setPlayerInCategory(categoryName: string, playerId: string) {
+    const category = await this.categoryModel
+      .findOne({ category: categoryName })
+      .exec();
+
+    if (!category) {
+      throw new NotFoundException('Category not found');
+    }
+
+    for (const player of category.players) {
+      if (playerId === String(player._id)) {
+        throw new ConflictException('Player already in category');
+      }
+    }
+
+    await this.categoryModel
+      .findOneAndUpdate(
+        { category: categoryName },
+        { $push: { players: playerId } },
+      )
       .exec();
   }
 }

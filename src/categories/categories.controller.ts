@@ -41,4 +41,12 @@ export class CategoriesController {
   ): Promise<void> {
     await this.categoriesService.updateCategory(id, updateCategoryDto);
   }
+
+  @Post(':category/players/:playerId')
+  async setPlayerInCategory(
+    @Param('category') category: string,
+    @Param('playerId') playerId: string,
+  ) {
+    await this.categoriesService.setPlayerInCategory(category, playerId);
+  }
 }

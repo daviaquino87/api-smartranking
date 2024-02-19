@@ -1,10 +1,10 @@
 # Smartranking
 
-Sistema de gestão de partidas, pensado para gerar ranks e desafios para os jogadores
+Sistema de gestão de partidas, pensado para gerar ranks e desafios para jogadores de tenis
 
 obs: Sistema desenvolvido no curso Node.js Microservices: NestJS, RabbitMQ and Cloud Services
 
-![Badge](https://img.shields.io/badge/delta-api-%237159c1?style=for-the-badge&logo=ghost)
+![Badge](https://img.shields.io/badge/Smartranking-api-%237159c1?style=for-the-badge&logo=ghost)
 
 <hr>
 

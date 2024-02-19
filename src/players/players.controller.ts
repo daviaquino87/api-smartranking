@@ -1,4 +1,12 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { CreatePlayerDTO } from './dtos/create-player.dto';
 import { PlayersService } from './players.service';
 import { PlayerOutputDTO } from './dtos/player-output.dto';
@@ -10,8 +18,8 @@ export class PlayersController {
   constructor(private readonly playersService: PlayersService) {}
 
   @Post()
-  async createUpdatePlayer(@Body() createPlayerDto: CreatePlayerDTO) {
-    await this.playersService.createUpdatePlayer(createPlayerDto);
+  async createPlayer(@Body() createPlayerDto: CreatePlayerDTO) {
+    await this.playersService.createPlayer(createPlayerDto);
   }
 
   @Get()
@@ -21,15 +29,23 @@ export class PlayersController {
     return players.map((player) => PlayerOutputDTO.toHttp(player));
   }
 
-  @Get(':email')
-  async getPlayerById(@Param('email') email: string): Promise<PlayerOutputDTO> {
-    const { player } = await this.playersService.getPlayerByEmail(email);
+  @Get(':id')
+  async getPlayerById(@Param('id') id: string): Promise<PlayerOutputDTO> {
+    const { player } = await this.playersService.getPlayerById(id);
 
     return PlayerOutputDTO.toHttp(player);
   }
 
-  @Delete(':email')
-  async deletePlayer(@Param('email') email: string): Promise<void> {
-    await this.playersService.deletePlayer(email);
+  @Put(':id')
+  async updatePlayer(
+    @Param('id') id: string,
+    @Body() createPlayerDto: CreatePlayerDTO,
+  ) {
+    await this.playersService.updatePlayer(id, createPlayerDto);
+  }
+
+  @Delete(':id')
+  async deletePlayer(@Param('id') id: string): Promise<void> {
+    await this.playersService.deletePlayer(id);
   }
 }

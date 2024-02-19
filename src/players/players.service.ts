@@ -13,9 +13,11 @@ interface GetPlayersOutput {
   players: Player[];
 }
 
-interface GetPlayerByEmailOutput {
+interface CreatePlayerOutput {
   player: Player;
 }
+
+type GetPlayerByIdOutput = CreatePlayerOutput;
 
 @Injectable()
 export class PlayersService {
@@ -23,7 +25,9 @@ export class PlayersService {
     @InjectModel('Player') private readonly playerModel: Model<Player>,
   ) {}
 
-  async createPlayer(createPlayerDto: CreatePlayerDTO): Promise<Player> {
+  async createPlayer(
+    createPlayerDto: CreatePlayerDTO,
+  ): Promise<CreatePlayerOutput> {
     const { email } = createPlayerDto;
 
     const userAlreadyExists = await this.playerModel.findOne({ email }).exec();
@@ -33,7 +37,11 @@ export class PlayersService {
     }
 
     const player = new this.playerModel(createPlayerDto);
-    return player.save();
+    const playerCreated = await player.save();
+
+    return {
+      player: playerCreated,
+    };
   }
 
   async updatePlayer(
@@ -58,7 +66,7 @@ export class PlayersService {
     };
   }
 
-  async getPlayerById(id: string): Promise<GetPlayerByEmailOutput> {
+  async getPlayerById(id: string): Promise<GetPlayerByIdOutput> {
     const player = await this.playerModel.findOne({ _id: id }).exec();
 
     if (!player) {

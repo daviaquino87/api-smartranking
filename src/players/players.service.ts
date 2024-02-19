@@ -7,6 +7,7 @@ import { CreatePlayerDTO } from './dtos/create-player.dto';
 import { Player } from './interfaces/player.interface';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { UpdatePlayerDTO } from './dtos/update-player.dto';
 
 interface GetPlayersOutput {
   players: Player[];
@@ -37,7 +38,7 @@ export class PlayersService {
 
   async updatePlayer(
     id: string,
-    createPlayerDto: CreatePlayerDTO,
+    createPlayerDto: UpdatePlayerDTO,
   ): Promise<void> {
     const player = await this.playerModel.findOne({ _id: id }).exec();
 

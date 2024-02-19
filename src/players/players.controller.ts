@@ -11,6 +11,7 @@ import { CreatePlayerDTO } from './dtos/create-player.dto';
 import { PlayersService } from './players.service';
 import { PlayerOutputDTO } from './dtos/player-output.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { UpdatePlayerDTO } from './dtos/update-player.dto';
 
 @ApiTags('Players')
 @Controller('api/v1/players')
@@ -39,9 +40,9 @@ export class PlayersController {
   @Put(':id')
   async updatePlayer(
     @Param('id') id: string,
-    @Body() createPlayerDto: CreatePlayerDTO,
+    @Body() updatePlayerDto: UpdatePlayerDTO,
   ) {
-    await this.playersService.updatePlayer(id, createPlayerDto);
+    await this.playersService.updatePlayer(id, updatePlayerDto);
   }
 
   @Delete(':id')

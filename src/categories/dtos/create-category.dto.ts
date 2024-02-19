@@ -7,7 +7,7 @@ import {
   MaxLength,
 } from 'class-validator';
 
-class CreateEventDTO {
+export class CreateEventDTO {
   @IsString()
   @IsNotEmpty()
   name: string;

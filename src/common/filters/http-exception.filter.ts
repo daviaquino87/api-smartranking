@@ -17,10 +17,20 @@ interface IPrintError {
   error: any;
 }
 
+interface IGetResponse {
+  message: string[];
+}
+
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
+  private logger = new Logger(HttpExceptionFilter.name);
+
   private printError(error: IPrintError) {
-    Logger.error(error, HttpExceptionFilter.name);
+    this.logger.error(error);
+  }
+
+  private getMessage(error: IGetResponse) {
+    return error?.message[0];
   }
 
   catch(error: Error, host: ArgumentsHost) {
@@ -34,7 +44,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     if (error instanceof HttpException) {
       const statusCode = error.getStatus();
-      const message = error?.message;
+      const errorMessages = error.getResponse() as IGetResponse;
+      const message = this.getMessage(errorMessages);
 
       this.printError({ ip, statusCode, method, url, body, error: message });
 

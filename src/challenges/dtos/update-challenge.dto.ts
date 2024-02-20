@@ -6,7 +6,10 @@ export class updateChallengeDTO {
   @IsOptional()
   challengeDate?: Date;
 
-  @IsEnum(ChallengeStatusByUpdateEnum)
+  @IsEnum(ChallengeStatusByUpdateEnum, {
+    message:
+      'status must be one of: "PENDING", "ACCEPTED", "REJECTED", "CANCELLED" ',
+  })
   @IsOptional()
   status?: ChallengeStatusByUpdateEnum;
 }

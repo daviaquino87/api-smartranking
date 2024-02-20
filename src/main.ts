@@ -40,7 +40,7 @@ function enableSecureApp(app: NestExpressApplication) {
   app.set('trust proxy', 1);
 }
 
-function enableExceptions(app: INestApplication) {
+function enableExceptions(app: NestExpressApplication) {
   app.useGlobalFilters(new HttpExceptionFilter());
 }
 

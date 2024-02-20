@@ -107,12 +107,17 @@ export class ChallengesService {
   async assignMatchChallenge(
     id: string,
     assignMatchChallengeDto: AssignMatchChallengeDTO,
-  ) {
+  ): Promise<void> {
     const challenge = await this.challengeModel.findOne({ _id: id });
 
     if (!challenge) {
       throw new NotFoundException('Challenge not found');
     }
+
+    if (challenge.status !== ChallengeStatusEnum.ACCEPTED) {
+      throw new BadRequestException('Challenge cannot receive assignments');
+    }
+
     const playerDefIsAssigned = challenge.players.some(
       (player) => player._id == assignMatchChallengeDto.def,
     );
@@ -132,8 +137,7 @@ export class ChallengesService {
     const result = await createdMatch.save();
 
     challenge.status = ChallengeStatusEnum.ACCOMPLISHED;
-
-    challenge.match = result;
+    challenge.match = result._id;
 
     try {
       await this.challengeModel.findOneAndUpdate({ id }, { $set: challenge });
@@ -153,7 +157,11 @@ export class ChallengesService {
       throw new NotFoundException('Challenge not found');
     }
 
-    challenge.status = ChallengeStatusEnum[updateChallengeDto.status];
+    if (updateChallengeDto.status) {
+      challenge.status = ChallengeStatusEnum[updateChallengeDto.status];
+      challenge.answerDate = new Date();
+    }
+
     challenge.challengeDate = updateChallengeDto.challengeDate;
 
     await this.challengeModel.findOneAndUpdate({ _id: id }, { challenge });
@@ -166,6 +174,11 @@ export class ChallengesService {
       throw new NotFoundException('Challenge not found');
     }
 
-    await this.challengeModel.deleteOne({ _id: id });
+    challenge.status = ChallengeStatusEnum.CANCELLED;
+
+    await this.challengeModel.findOneAndUpdate(
+      { _id: id },
+      { $set: challenge },
+    );
   }
 }

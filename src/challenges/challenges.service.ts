@@ -97,7 +97,7 @@ export class ChallengesService {
       .find()
       .where('players')
       .in([id])
-      .populate(['players', 'category']);
+      .populate(['players', 'category', 'match']);
 
     return {
       challenges,

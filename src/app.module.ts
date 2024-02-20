@@ -6,6 +6,7 @@ import { envSchema } from './env/env-schema';
 import { EnvModule } from './env/env.module';
 import { EnvService } from './env/env.service';
 import { CategoriesModule } from './categories/categories.module';
+import { ChallengesModule } from './challenges/challenges.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { CategoriesModule } from './categories/categories.module';
     }),
     PlayersModule,
     CategoriesModule,
+    ChallengesModule,
   ],
   controllers: [],
   providers: [],

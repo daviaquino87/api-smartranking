@@ -16,6 +16,8 @@ interface CreateCategoryOutput {
 
 type GetCategoryByIdOutput = CreateCategoryOutput;
 
+type GetCategoryByPlayerIdOutput = CreateCategoryOutput;
+
 interface GetCategoriesOutput {
   categories: Category[];
 }
@@ -103,5 +105,24 @@ export class CategoriesService {
       { category: categoryName },
       { $push: { players: playerId } },
     );
+  }
+
+  async getCategoryByPlayerId(
+    playerId: string,
+  ): Promise<GetCategoryByPlayerIdOutput> {
+    const category = await this.categoryModel
+      .findOne()
+      .where('players')
+      .in([playerId]);
+
+    if (!category) {
+      throw new NotFoundException(
+        'The respective player is not associated with a category',
+      );
+    }
+
+    return {
+      category,
+    };
   }
 }

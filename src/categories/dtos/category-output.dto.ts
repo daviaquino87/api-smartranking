@@ -15,6 +15,22 @@ class EventOutputDTO {
   }
 }
 
+export class CategoryWithoutPlayersOutputDTO {
+  _id: string;
+  category: string;
+  description: string;
+  events: EventOutputDTO[];
+
+  static toHttp(category: Category): CategoryWithoutPlayersOutputDTO {
+    return {
+      _id: category._id,
+      category: category.category,
+      description: category.description,
+      events: category?.events.map((event) => EventOutputDTO.toHttp(event)),
+    };
+  }
+}
+
 export class CategoryOutputDTO {
   _id: string;
   category: string;

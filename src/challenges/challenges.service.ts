@@ -11,6 +11,10 @@ interface CreateChallengeOutput {
   challenge: Challenge;
 }
 
+interface GetChallengesOutput {
+  challenges: Challenge[];
+}
+
 @Injectable()
 export class ChallengesService {
   constructor(
@@ -67,6 +71,16 @@ export class ChallengesService {
 
     return {
       challenge,
+    };
+  }
+
+  async getChallenges(): Promise<GetChallengesOutput> {
+    const challenges = await this.challengeModel
+      .find()
+      .populate(['players', 'category']);
+
+    return {
+      challenges,
     };
   }
 }

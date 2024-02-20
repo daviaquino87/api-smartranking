@@ -6,6 +6,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { EnvService } from './env/env.service';
 import { Request, Response } from 'express';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import * as momentTimezone from 'moment-timezone';
 
 function enableDocumentation(app: INestApplication) {
   const config = new DocumentBuilder()
@@ -47,6 +48,14 @@ async function runServer(app: NestExpressApplication, port: number) {
   await app.listen(port);
 }
 
+async function useMomentTimezone() {
+  Date.prototype.toJSON = function () {
+    return momentTimezone(this)
+      .tz('America/Sao_Paulo')
+      .format('YYYY-MM-DD HH:mm:ss');
+  };
+}
+
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
@@ -60,6 +69,7 @@ async function bootstrap() {
     enableDocumentation(app);
   }
 
+  useMomentTimezone();
   enableSecureApp(app);
   enableValidationPipes(app);
   enableExceptions(app);

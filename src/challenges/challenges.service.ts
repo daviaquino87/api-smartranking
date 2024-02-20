@@ -1,11 +1,18 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateChallengeDTO } from './dtos/create-challenge.dto';
-import { Challenge } from './interfaces/challenge.interface';
+import { Challenge, Match } from './interfaces/challenge.interface';
 import { PlayersService } from '../players/players.service';
 import { CategoriesService } from '../categories/categories.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ChallengeStatus } from './enums/challenge-status.enum';
+import { updateChallengeDTO } from './dtos/update-challenge.dto';
+import { AssignMatchChallengeDTO } from './dtos/assign-match-challenge.dto';
 
 interface CreateChallengeOutput {
   challenge: Challenge;
@@ -19,6 +26,7 @@ interface GetChallengesOutput {
 export class ChallengesService {
   constructor(
     @InjectModel('Challenge') private readonly challengeModel: Model<Challenge>,
+    @InjectModel('Match') private readonly matchModel: Model<Match>,
     private readonly playerService: PlayersService,
     private readonly categoriesService: CategoriesService,
   ) {}
@@ -82,5 +90,82 @@ export class ChallengesService {
     return {
       challenges,
     };
+  }
+
+  async getChallengesByPlayerId(id: string): Promise<GetChallengesOutput> {
+    const challenges = await this.challengeModel
+      .find()
+      .where('players')
+      .in([id])
+      .populate(['players', 'category']);
+
+    return {
+      challenges,
+    };
+  }
+
+  async assignMatchChallenge(
+    id: string,
+    assignMatchChallengeDto: AssignMatchChallengeDTO,
+  ) {
+    const challenge = await this.challengeModel.findOne({ _id: id });
+
+    if (!challenge) {
+      throw new NotFoundException('Challenge not found');
+    }
+    const playerDefIsAssigned = challenge.players.some(
+      (player) => player._id == assignMatchChallengeDto.def,
+    );
+
+    if (playerDefIsAssigned) {
+      throw new BadRequestException(
+        `The winning player does not take part in the match`,
+      );
+    }
+
+    const createdMatch = new this.matchModel({
+      ...assignMatchChallengeDto,
+      category: challenge.category,
+      players: challenge.players,
+    });
+
+    const result = await createdMatch.save();
+
+    challenge.status = ChallengeStatus.ACCOMPLISHED;
+
+    challenge.match = result;
+
+    try {
+      await this.challengeModel.findOneAndUpdate({ id }, { $set: challenge });
+    } catch (error) {
+      await this.matchModel.deleteOne({ _id: result._id });
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async updateChallenge(
+    id: string,
+    updateChallengeDto: updateChallengeDTO,
+  ): Promise<void> {
+    const challenge = await this.challengeModel.findOne({ _id: id });
+
+    if (!challenge) {
+      throw new NotFoundException('Challenge not found');
+    }
+
+    challenge.status = updateChallengeDto.status;
+    challenge.challengeDate = updateChallengeDto.challengeDate;
+
+    await this.challengeModel.findOneAndUpdate({ _id: id }, { challenge });
+  }
+
+  async deleteChallenge(id: string): Promise<void> {
+    const challenge = await this.challengeModel.findOne({ _id: id });
+
+    if (!challenge) {
+      throw new NotFoundException('Challenge not found');
+    }
+
+    await this.challengeModel.deleteOne({ _id: id });
   }
 }

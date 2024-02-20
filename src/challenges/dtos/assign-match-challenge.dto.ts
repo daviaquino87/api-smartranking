@@ -1,11 +1,17 @@
-import { Player } from 'src/players/interfaces/player.interface';
-import { Result } from '../interfaces/challenge.interface';
 import { IsNotEmpty } from 'class-validator';
+
+class CreateResultDTO {
+  set: string;
+}
+
+class CreateDefDTO {
+  _id: string;
+}
 
 export class AssignMatchChallengeDTO {
   @IsNotEmpty()
-  def: Player;
+  def: CreateDefDTO;
 
   @IsNotEmpty()
-  resultado: Result[];
+  resultado: CreateResultDTO[];
 }

@@ -10,7 +10,7 @@ import { PlayersService } from '../players/players.service';
 import { CategoriesService } from '../categories/categories.service';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { ChallengeStatus } from './enums/challenge-status.enum';
+import { ChallengeStatusEnum } from './enums/challenge-status.enum';
 import { updateChallengeDTO } from './dtos/update-challenge.dto';
 import { AssignMatchChallengeDTO } from './dtos/assign-match-challenge.dto';
 
@@ -68,7 +68,7 @@ export class ChallengesService {
 
     const createdChallenge = new this.challengeModel({
       ...createChallengeDto,
-      status: ChallengeStatus.PENDING,
+      status: ChallengeStatusEnum.PENDING,
       category: category,
       requestDate: new Date(),
     });
@@ -131,7 +131,7 @@ export class ChallengesService {
 
     const result = await createdMatch.save();
 
-    challenge.status = ChallengeStatus.ACCOMPLISHED;
+    challenge.status = ChallengeStatusEnum.ACCOMPLISHED;
 
     challenge.match = result;
 
@@ -153,7 +153,7 @@ export class ChallengesService {
       throw new NotFoundException('Challenge not found');
     }
 
-    challenge.status = updateChallengeDto.status;
+    challenge.status = ChallengeStatusEnum[updateChallengeDto.status];
     challenge.challengeDate = updateChallengeDto.challengeDate;
 
     await this.challengeModel.findOneAndUpdate({ _id: id }, { challenge });

@@ -1,12 +1,12 @@
 import { PlayerOutputDTO } from 'src/players/dtos/player-output.dto';
-import { ChallengeStatus } from '../enums/challenge-status.enum';
+import { ChallengeStatusEnum } from '../enums/challenge-status.enum';
 import { Challenge } from '../interfaces/challenge.interface';
 import { CategoryWithoutPlayersOutputDTO } from '../../categories/dtos/category-output.dto';
 
 export class ChallengeOutputDTO {
   _id: string;
   challengeDate: Date;
-  status: ChallengeStatus;
+  status: ChallengeStatusEnum;
   requestDate: Date;
   answerDate: Date;
   requester: string;

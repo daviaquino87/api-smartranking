@@ -1,11 +1,11 @@
 import { Document } from 'mongoose';
 import { Player } from '../../players/interfaces/player.interface';
-import { ChallengeStatus } from '../enums/challenge-status.enum';
+import { ChallengeStatusEnum } from '../enums/challenge-status.enum';
 import { Category } from '../../categories/interfaces/category.interface';
 
 export interface Challenge extends Document {
   challengeDate: Date;
-  status: ChallengeStatus;
+  status: ChallengeStatusEnum;
   requestDate: Date;
   answerDate: Date;
   requester: Player;

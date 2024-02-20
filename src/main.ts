@@ -5,6 +5,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { EnvService } from './env/env.service';
 import { Request, Response } from 'express';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
 function enableDocumentation(app: INestApplication) {
   const config = new DocumentBuilder()
@@ -38,6 +39,10 @@ function enableSecureApp(app: NestExpressApplication) {
   app.set('trust proxy', 1);
 }
 
+function enableExceptions(app: INestApplication) {
+  app.useGlobalFilters(new HttpExceptionFilter());
+}
+
 async function runServer(app: NestExpressApplication, port: number) {
   await app.listen(port);
 }
@@ -57,6 +62,7 @@ async function bootstrap() {
 
   enableSecureApp(app);
   enableValidationPipes(app);
+  enableExceptions(app);
   runServer(app, PORT);
 }
 bootstrap();

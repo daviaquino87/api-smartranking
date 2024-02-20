@@ -22,5 +22,6 @@ export interface Match extends Document {
 }
 
 export interface Result {
+  _id?: string;
   set: string;
 }

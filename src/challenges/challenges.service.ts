@@ -85,7 +85,7 @@ export class ChallengesService {
   async getChallenges(): Promise<GetChallengesOutput> {
     const challenges = await this.challengeModel
       .find()
-      .populate(['players', 'category']);
+      .populate(['players', 'category', 'match']);
 
     return {
       challenges,
@@ -140,7 +140,10 @@ export class ChallengesService {
     challenge.match = result._id;
 
     try {
-      await this.challengeModel.findOneAndUpdate({ id }, { $set: challenge });
+      await this.challengeModel.findOneAndUpdate(
+        { _id: id },
+        { $set: challenge },
+      );
     } catch (error) {
       await this.matchModel.deleteOne({ _id: result._id });
       throw new InternalServerErrorException();
@@ -164,7 +167,10 @@ export class ChallengesService {
 
     challenge.challengeDate = updateChallengeDto.challengeDate;
 
-    await this.challengeModel.findOneAndUpdate({ _id: id }, { challenge });
+    await this.challengeModel.findOneAndUpdate(
+      { _id: id },
+      { $set: challenge },
+    );
   }
 
   async deleteChallenge(id: string): Promise<void> {

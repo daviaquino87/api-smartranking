@@ -13,5 +13,5 @@ export class AssignMatchChallengeDTO {
   def: CreateDefDTO;
 
   @IsNotEmpty()
-  resultado: CreateResultDTO[];
+  result: CreateResultDTO[];
 }

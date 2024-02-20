@@ -30,7 +30,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
   }
 
   private getMessage(error: IGetResponse) {
-    return error?.message[0];
+    return error?.message;
   }
 
   catch(error: Error, host: ArgumentsHost) {
